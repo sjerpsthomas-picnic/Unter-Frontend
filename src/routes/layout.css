@@ -21,7 +21,7 @@ h1 {
 
 /* Via: https://flowbite.com/docs/components/buttons/ */
 button {
-    @apply text-white bg-blue-500 hover:bg-blue-800 shadow-xs rounded-full text-sm px-4 py-2.5;
+    @apply text-white bg-blue-500 hover:bg-blue-800 shadow-xs rounded-full text-sm px-4 py-2.5 cursor-pointer;
 }
 
 a {
