@@ -42,16 +42,23 @@
 	<div class="flex flex-row space-x-10">
 		<MapView mapNodes={TEMP_MAP} onNodeClick={populateForm}/>
 
-		<div class="w-full bg-amber-300 p-5 rounded-3xl shadow-2xl">
-			<h1 class="text-center mx-auto font-bold">Where do you want to go?</h1>
+		<div class="w-full h-fit bg-amber-300 p-5 rounded-3xl shadow-2xl">
+			<h1 class="text-center mx-auto font-bold">Where to?</h1>
 
 			<form id="ride-form" onsubmit={finish} class="flex flex-col gap-2 mt-2 text-center">
-				<label for="from">Current location:</label>
-				<input class="rounded-md" type="text" id="from" />
-				<label for="to">Destination:</label>
-				<input class="rounded-md" type="text" id="to" />
+				<div class="flex flex-row justify-center items-center gap-2">
+					<div>
+						<p class="mb-1 italic">from</p>
+						<input class="rounded-full size-12 text-center" type="text" id="from" />
+					</div>
+					<p class="text-2xl mt-6 font-bold">→</p>
+					<div>
+						<p class="mb-1 italic">to</p>
+						<input class="rounded-full size-12 text-center" type="text" id="to" />
+					</div>
+				</div>
 
-				<button onclick={finish} class="mt-5" type="submit" form="sisu-form" value="Submit">
+				<button onclick={finish} class="mt-2 w-40 mx-auto" type="submit" form="sisu-form" value="Submit">
 					Request a ride!
 				</button>
 			</form>
