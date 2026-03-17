@@ -1,8 +1,8 @@
 <script lang="ts">
 	import MapView from '$lib/MapView.svelte';
-	import { type Node, TEMP_MAP } from '$lib/map.ts';
+	import { type MapNode, TEMP_MAP } from '$lib/map.ts';
 
-	const finish = () => {
+	const finish = async () => {
 		const fromElement = document.getElementById("from") as HTMLInputElement
 		const fromValue = fromElement.value.trim();
 		const toElement = document.getElementById("to") as HTMLInputElement
@@ -14,10 +14,11 @@
 		if (fromElement.value === toElement.value)
 			return alert("You can't ride to the same place! Please choose a different destination.");
 
-		alert(`From ${fromValue} to ${toValue}!`)
+		const asdf = fetch("http://localhost:8080/api/routing/hello", {});
+		asdf.then(res => res.text()).then(res => alert(res));
 	}
 
-	const populateForm = (node: Node) => {
+	const populateForm = (node: MapNode) => {
 		const fromElement = document.getElementById("from") as HTMLInputElement
 		const toElement = document.getElementById("to") as HTMLInputElement
 
