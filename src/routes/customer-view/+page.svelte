@@ -1,6 +1,6 @@
 <script lang="ts">
-	import MapView from '$lib/MapView.svelte';
-	import { type MapNode, TEMP_MAP } from '$lib/map.ts';
+	import UnterMapView from '$lib/map/unter-map-view.svelte';
+	import { type UnterMapNode } from '../../lib/map/unter-map-view.ts';
 
 	const finish = async () => {
 		const fromElement = document.getElementById("from") as HTMLInputElement
@@ -18,7 +18,7 @@
 		asdf.then(res => res.text()).then(res => alert(res));
 	}
 
-	const populateForm = (node: MapNode) => {
+	const populateForm = (node: UnterMapNode) => {
 		const fromElement = document.getElementById("from") as HTMLInputElement
 		const toElement = document.getElementById("to") as HTMLInputElement
 
@@ -41,7 +41,7 @@
 
 <section>
 	<div class="flex flex-row space-x-10">
-		<MapView mapNodes={TEMP_MAP} onNodeClick={populateForm}/>
+		<UnterMapView onNodeClick={populateForm}/>
 
 		<div class="w-full h-fit bg-amber-300 p-5 rounded-3xl shadow-2xl">
 			<h1 class="text-center mx-auto font-bold">Where to?</h1>
