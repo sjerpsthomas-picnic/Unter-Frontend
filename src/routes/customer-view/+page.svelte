@@ -40,10 +40,10 @@
 </svelte:head>
 
 <section>
-	<div class="flex flex-row space-x-10">
+	<div class="flex w-110 flex-col mx-auto">
 		<UnterMapView onNodeClick={populateForm}/>
 
-		<div class="w-full h-fit bg-amber-300 p-5 rounded-3xl shadow-2xl">
+		<div class="h-fit px-10 bg-amber-300 p-5 rounded-b-3xl shadow-2xl">
 			<h1 class="text-center mx-auto font-bold">Where to?</h1>
 
 			<form id="ride-form" onsubmit={finish} class="flex flex-col gap-2 mt-2 text-center">

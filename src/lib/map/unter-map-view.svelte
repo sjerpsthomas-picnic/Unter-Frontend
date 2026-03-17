@@ -23,7 +23,7 @@
 </script>
 
 <div>
-	<div class="bg-gray-700 size-fit p-5 rounded-3xl shadow-2xl">
+	<div class="bg-gray-700 size-fit p-5 pb-10 rounded-t-3xl shadow-2xl">
 		<h1 class="text-center mb-5 text-white font-bold">
 			MAP
 		</h1>
@@ -53,7 +53,7 @@
 						y1={scale(routeEdge.from.draw_y) + dotSize / 2}
 						x2={scale(routeEdge.to.draw_x) + dotSize / 2}
 						y2={scale(routeEdge.to.draw_y) + dotSize / 2}
-						stroke="#74C365"
+						stroke="#cce7c9"
 						stroke-width="4"
 					/>
 				{/each}

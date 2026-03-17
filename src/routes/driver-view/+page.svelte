@@ -42,13 +42,18 @@
 
 <section>
 	<div class="flex flex-row space-x-10">
-		<UnterMapView onNodeClick={populateForm}/>
+		<div>
+			<UnterMapView onNodeClick={populateForm}/>
+			<div class="w-full bg-fuchsia-300 p-5 rounded-b-2xl">
+				SUPPLEMENTAL INFORMATION
+			</div>
+		</div>
 
 		<div class="flex flex-col gap-5 w-full">
 			<h1 class="mx-auto font-bold mt-5">REQUESTS</h1>
 
 			{#each requests as request, i (request)}
-				<div class="w-full h-fit bg-emerald-300 p-5 rounded-3xl shadow-2xl">
+				<div class="w-full h-fit bg-[#fff0e7] p-5 rounded-3xl shadow-2xl">
 					<div class="text-center text-xl mx-auto font-bold">User '{request.user}' wants to go...</div>
 
 					<form id="ride-form" onsubmit={finish} class="flex flex-col gap-2 mt-2 text-center">
