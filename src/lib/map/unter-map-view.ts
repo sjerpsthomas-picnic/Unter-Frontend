@@ -21,6 +21,8 @@ export type UnterMapRoute = {
 }[];
 export const requestMap = () =>
 	request<UnterMap>('routing/map').then((newMap) => {
+		console.log(newMap);
+
 		const bounds = {
 			minX: Math.min(...newMap.map((it) => it.draw_x)),
 			maxX: Math.max(...newMap.map((it) => it.draw_x)),
@@ -55,7 +57,6 @@ export const requestMap = () =>
 export const requestRoute = (map: UnterMap) =>
 	request<{ nodes: number[] }>(`routing/route`).then(({ nodes }) => {
 		const res: UnterMapRoute = [];
-		console.log(nodes);
 
 		for (let i = 1; i < nodes.length; i++) {
 			const prev = nodes[i - 1];
@@ -67,6 +68,5 @@ export const requestRoute = (map: UnterMap) =>
 			res.push({ from: prevNode, to: currNode });
 		}
 
-		console.log(res);
 		return res;
 	});
