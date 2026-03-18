@@ -1,4 +1,4 @@
-import { request } from '../request.ts';
+import { callWithResponse } from '../request.ts';
 
 export type UnterMap = UnterMapNode[];
 
@@ -19,54 +19,61 @@ export type UnterMapRoute = {
 	from: { draw_x: number; draw_y: number };
 	to: { draw_x: number; draw_y: number };
 }[];
-export const requestMap = () =>
-	request<UnterMap>('routing/map').then((newMap) => {
-		console.log(newMap);
+export async function requestMap(){
+	const res = await callWithResponse<UnterMap>('api/routing/map');
+	console.log(res);
+	if (!res.ok) return [];
+	const newMap = res.data;
 
-		const bounds = {
-			minX: Math.min(...newMap.map((it) => it.draw_x)),
-			maxX: Math.max(...newMap.map((it) => it.draw_x)),
-			minY: Math.min(...newMap.map((it) => it.draw_y)),
-			maxY: Math.max(...newMap.map((it) => it.draw_y))
-		};
+	console.log(newMap);
 
-		const map: UnterMap = newMap.map((it) => ({
-			...it,
-			draw_x: (it.draw_x - bounds.minX) / (bounds.maxX - bounds.minX),
-			draw_y: (it.draw_y - bounds.minY) / (bounds.maxY - bounds.minY)
-		}));
+	const bounds = {
+		minX: Math.min(...newMap.map((it) => it.draw_x)),
+		maxX: Math.max(...newMap.map((it) => it.draw_x)),
+		minY: Math.min(...newMap.map((it) => it.draw_y)),
+		maxY: Math.max(...newMap.map((it) => it.draw_y))
+	};
 
-		// Deduplicate edges
-		const foundEdges: { from: number; to: number }[] = [];
-		for (const node of map) {
-			node.edges = node.edges.filter((edge) => {
-				const edgeAlreadyFound = foundEdges.some(
-					(it) =>
-						(it.from === edge.to && it.to === node.id) || (it.from === node.id && it.to === edge.to)
-				);
-				if (edgeAlreadyFound) return false;
+	const map: UnterMap = newMap.map((it) => ({
+		...it,
+		draw_x: (it.draw_x - bounds.minX) / (bounds.maxX - bounds.minX),
+		draw_y: (it.draw_y - bounds.minY) / (bounds.maxY - bounds.minY)
+	}));
 
-				foundEdges.push({ from: node.id, to: edge.to });
-				return true;
-			});
-		}
+	// Deduplicate edges
+	const foundEdges: { from: number; to: number }[] = [];
+	for (const node of map) {
+		node.edges = node.edges.filter((edge) => {
+			const edgeAlreadyFound = foundEdges.some(
+				(it) =>
+					(it.from === edge.to && it.to === node.id) || (it.from === node.id && it.to === edge.to)
+			);
+			if (edgeAlreadyFound) return false;
 
-		return map;
-	});
+			foundEdges.push({ from: node.id, to: edge.to });
+			return true;
+		});
+	}
 
-export const requestRoute = (map: UnterMap) =>
-	request<{ nodes: number[] }>(`routing/route`).then(({ nodes }) => {
-		const res: UnterMapRoute = [];
+	return map;
+}
 
-		for (let i = 1; i < nodes.length; i++) {
-			const prev = nodes[i - 1];
-			const curr = nodes[i];
+export async function requestRoute(map: UnterMap) {
+	const res = await callWithResponse<{ nodes: number[] }>('api/routing/route');
+	if (!res.ok) return [];
+	const { nodes } = res.data;
 
-			const prevNode = map.find((n) => n.id === prev)!;
-			const currNode = map.find((n) => n.id === curr)!;
+	const route: UnterMapRoute = [];
 
-			res.push({ from: prevNode, to: currNode });
-		}
+	for (let i = 1; i < nodes.length; i++) {
+		const prev = nodes[i - 1];
+		const curr = nodes[i];
 
-		return res;
-	});
+		const prevNode = map.find((n) => n.id === prev)!;
+		const currNode = map.find((n) => n.id === curr)!;
+
+		route.push({ from: prevNode, to: currNode });
+	}
+
+	return route;
+}

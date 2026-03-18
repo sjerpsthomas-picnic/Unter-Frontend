@@ -1,12 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { call, request } from '$lib/request.ts';
+	import { callWithResponse, callWithOk } from '../../lib/request.ts';
 
 	type Role = "CUSTOMER" | "DRIVER";
 	type State = "SIGN_IN" | "SIGN_UP";
 
 	let state: State = $state("SIGN_IN");
 	let role: Role = $state("CUSTOMER")
+	let errorMessage: string = $state("");
+
+	onMount(() => {
+		localStorage.removeItem("token");
+	})
 
 	function finish() {
 		const usernameElement = document.getElementById("username") as HTMLInputElement
@@ -14,22 +19,44 @@
 		const email = usernameElement.value;
 		const password = passwordElement.value;
 
+		errorMessage = "";
+
 		if (state == "SIGN_IN") {
-			alert("Sign in")
-			call("auth/login?email=" + email + "&password=" + password, "POST")
+			callWithResponse<{ token: string }>("auth/login", "POST", { email, password })
+				.then(res => {
+					if (!res.ok) {
+						errorMessage = res.error.status + " " + res.error.error;
+						return;
+					}
+
+					const { token } = res.data;
+
+					localStorage.setItem("token", token);
+					window.location.href = "/customer-view";
+				})
 		}
 		else {
-			alert("Sign up")
-			call("auth/register?email=" + email + "&password=" + password + "&role=" + role, "POST")
+			callWithOk("auth/register", "POST", { email, password, role })
+				.then(ok => {
+					if (!ok) return;
+
+					const usernameElement = document.getElementById("username") as HTMLInputElement
+					const passwordElement = document.getElementById("password") as HTMLInputElement
+					usernameElement.value = "";
+					passwordElement.value = "";
+
+					state = "SIGN_IN";
+				})
 		}
 	}
 
 	function switchState() {
 		state = state === "SIGN_IN" ? "SIGN_UP" : "SIGN_IN";
+		errorMessage = "";
 	}
 
 	onMount(() => {
-		request<number[]>("/routing/calculate?start=A&end=D").then(console.log);
+		callWithResponse<number[]>("/routing/calculate?start=A&end=D").then(console.log);
 	})
 </script>
 
@@ -47,8 +74,10 @@
 			<input class="rounded-md" type="password" id="password" />
 		</div>
 
+		<p class="text-center mt-2 text-red-500 italic">{errorMessage}</p>
+
 		{#if state === "SIGN_UP"}
-			<div class="w-[90%] mx-auto mt-3 space-y-2 text-center">
+			<div class="w-[90%] mx-auto space-y-2 text-center">
 				<p>I want to be a...</p>
 				<div class="flex justify-stretch">
 					{#if role === "CUSTOMER"}
