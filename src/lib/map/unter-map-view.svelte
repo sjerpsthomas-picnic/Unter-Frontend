@@ -16,7 +16,7 @@
 	})
 
 	const mapSize = 400;
-	const dotSize = 40;
+	const dotSize = 30;
 
 	const findNode = (id: number) => map.find(n => n.id === id);
 	const scale = (val: number) => val * (mapSize - 3 * dotSize) + dotSize;
@@ -59,13 +59,11 @@
 				{/each}
 			</svg>
 
-
-
 			<!-- Nodes -->
 			<div class="absolute" style="width: {mapSize}px; height: {mapSize}px;">
 				{#each map as node (node.id)}
 					<button onclick={() => onNodeClick(node)} aria-label="what?"
-									class="absolute bg-white rounded-full flex items-center justify-center"
+									class="absolute rounded-full bg-blue-100 hover:bg-white border shadow-sm hover:shadow-md transition-all flex items-center justify-center"
 									style="width: {dotSize}px; height: {dotSize}px; transform: translate({scale(node.draw_x)}px, {scale(node.draw_y)}px)">
 						{node.id}
 					</button>

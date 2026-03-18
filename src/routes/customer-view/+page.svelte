@@ -59,7 +59,7 @@
 					</div>
 				</div>
 
-				<button onclick={finish} class="mt-2 w-40 mx-auto" type="submit" form="sisu-form" value="Submit">
+				<button onclick={finish} class="blue-button mt-2 w-40 mx-auto" type="submit" form="sisu-form" value="Submit">
 					Request a ride!
 				</button>
 			</form>

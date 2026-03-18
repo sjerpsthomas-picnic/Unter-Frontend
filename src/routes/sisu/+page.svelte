@@ -81,21 +81,21 @@
 				<p>I want to be a...</p>
 				<div class="flex justify-stretch">
 					{#if role === "CUSTOMER"}
-						<button type="button" class="w-1/2 rounded-r-2xl outline-4 outline-blue-200 mr-0" style="border-radius: 0; border-top-left-radius: 50px; border-bottom-left-radius: 50px" onclick={() => { role = "CUSTOMER" }}>Customer</button>
+						<button type="button" class="w-1/2 rounded-r-2xl outline-4 outline-blue-500 mr-0" style="border-radius: 0; border-top-left-radius: 50px; border-bottom-left-radius: 50px" onclick={() => { role = "CUSTOMER" }}>Customer</button>
 					{:else}
-						<button type="button" class="w-1/2 rounded-r-2xl mr-0 outline-4" style="border-radius: 0; border-top-left-radius: 50px; border-bottom-left-radius: 50px" onclick={() => { role = "CUSTOMER" }}>Customer</button>
+						<button type="button" class="w-1/2 rounded-r-2xl outline-1 outline-blue-500 mr-0" style="border-radius: 0; border-top-left-radius: 50px; border-bottom-left-radius: 50px" onclick={() => { role = "CUSTOMER" }}>Customer</button>
 					{/if}
 
 					{#if role === "DRIVER"}
-						<button type="button" class="w-1/2 rounded-r-2xl outline-4 outline-blue-200 ml-0" style="border-radius: 0; border-top-right-radius: 50px; border-bottom-right-radius: 50px" onclick={() => { role = "DRIVER" }}>Driver</button>
+						<button type="button" class="w-1/2 rounded-r-2xl outline-4 outline-blue-500 ml-0" style="border-radius: 0; border-top-right-radius: 50px; border-bottom-right-radius: 50px" onclick={() => { role = "DRIVER" }}>Driver</button>
 					{:else}
-						<button type="button" class="w-1/2 rounded-r-2xl ml-0" style="border-radius: 0; border-top-right-radius: 50px; border-bottom-right-radius: 50px" onclick={() => { role = "DRIVER" }}>Driver</button>
+						<button type="button" class="w-1/2 rounded-r-2xl outline-1 outline-blue-500 ml-0" style="border-radius: 0; border-top-right-radius: 50px; border-bottom-right-radius: 50px" onclick={() => { role = "DRIVER" }}>Driver</button>
 					{/if}
 				</div>
 			</div>
 		{/if}
 
-		<button class="mt-3" type="submit" form="sisu-form" value="Submit">Submit</button>
+		<button class="blue-button mt-3" type="submit" form="sisu-form" value="Submit">Submit</button>
 	</form>
 
 	<a href={null} onclick={() => switchState()} class="text-center mx-auto text-sm mt-2 cursor-pointer">

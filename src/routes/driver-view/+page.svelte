@@ -41,7 +41,7 @@
 </svelte:head>
 
 <section>
-	<div class="flex flex-row space-x-10">
+	<div class="flex flex-row space-x-10 justify-center">
 		<div>
 			<UnterMapView onNodeClick={populateForm}/>
 			<div class="w-full bg-fuchsia-300 p-5 rounded-b-2xl">
@@ -49,15 +49,16 @@
 			</div>
 		</div>
 
-		<div class="flex flex-col gap-5 w-full">
+		<div class="flex flex-col gap-5 w-110">
 			<h1 class="mx-auto font-bold mt-5">REQUESTS</h1>
 
 			{#each requests as request, i (request)}
-				<div class="w-full h-fit bg-[#fff0e7] p-5 rounded-3xl shadow-2xl">
-					<div class="text-center text-xl mx-auto font-bold">User '{request.user}' wants to go...</div>
+				<div class="w-full h-fit bg-[#fff0e7] p-5 rounded-3xl border shadow-lg">
+					<div class="flex flex-row gap-5 mb-2 justify-center items-center">
 
-					<form id="ride-form" onsubmit={finish} class="flex flex-col gap-2 mt-2 text-center">
-						<div class="flex flex-row justify-center items-center gap-2">
+						<div class="text-center text-xl font-bold">{request.user} wants to go</div>
+
+						<div class="flex flex-row justify-center items-center gap-2 text-center">
 							<div>
 								<p class="mb-1 italic">from</p>
 								<input class="rounded-full size-12 text-center" disabled type="text" id={`${i}.from`} value={request.from.toString()} />
@@ -69,16 +70,17 @@
 							</div>
 						</div>
 
-						<div class="flex flex-row justify-center items-center gap-2">
-							<button onclick={finish} class="mt-2 w-40 mx-auto" type="submit" form="sisu-form" value="Submit">
-								Accept
-							</button>
+					</div>
 
-							<button onclick={finish} class="mt-2 w-40 mx-auto" type="submit" form="sisu-form" value="Submit">
-								Deny
-							</button>
-						</div>
-					</form>
+					<div class="flex flex-row justify-center items-center gap-4">
+						<button onclick={finish} class="green-button mt-2 w-40" type="submit" form="sisu-form" value="Submit">
+							Accept
+						</button>
+
+						<button onclick={finish} class="red-button mt-2 w-40" type="submit" form="sisu-form" value="Submit">
+							Deny
+						</button>
+					</div>
 				</div>
 			{/each}
 		</div>

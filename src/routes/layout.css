@@ -20,8 +20,14 @@ h1 {
 }
 
 /* Via: https://flowbite.com/docs/components/buttons/ */
-button {
+.blue-button {
     @apply text-white bg-blue-500 hover:bg-blue-800 shadow-xs rounded-full text-sm px-4 py-2.5 cursor-pointer;
+}
+.red-button {
+    @apply text-white bg-red-500 hover:bg-red-800 shadow-xs rounded-full text-sm px-4 py-2.5 cursor-pointer;
+}
+.green-button {
+    @apply text-white bg-green-500 hover:bg-green-800 shadow-xs rounded-full text-sm px-4 py-2.5 cursor-pointer;
 }
 
 a {
