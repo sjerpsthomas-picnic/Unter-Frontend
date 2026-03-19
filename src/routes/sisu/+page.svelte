@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { callWithResponse, callWithOk } from '../../lib/request.ts';
+	import { jwtDecode } from 'jwt-decode';
+	import api from '$lib/api.ts';
+	import type { AxiosResponse } from 'axios';
 
 	type Role = "CUSTOMER" | "DRIVER";
 	type State = "SIGN_IN" | "SIGN_UP";
@@ -13,7 +15,7 @@
 		localStorage.removeItem("token");
 	})
 
-	function finish() {
+	async function finish() {
 		const usernameElement = document.getElementById("username") as HTMLInputElement
 		const passwordElement = document.getElementById("password") as HTMLInputElement
 		const email = usernameElement.value;
@@ -22,31 +24,30 @@
 		errorMessage = "";
 
 		if (state == "SIGN_IN") {
-			callWithResponse<{ token: string }>("auth/login", "POST", { email, password })
-				.then(res => {
-					if (!res.ok) {
-						errorMessage = res.error.status + " " + res.error.error;
-						return;
-					}
+			const res = await api.post("auth/login", { email, password }) as AxiosResponse<{ token: string }>;
 
-					const { token } = res.data;
+			const { token } = res.data;
 
-					localStorage.setItem("token", token);
-					window.location.href = "/customer-view";
-				})
+			const role = jwtDecode<{ role: "ROLE_CUSTOMER" | "ROLE_DRIVER" }>(token).role;
+			localStorage.setItem("token", token);
+
+			if (role === "ROLE_CUSTOMER")
+				window.location.href = "/customer-view";
+			else
+				window.location.href = "/driver-view";
 		}
 		else {
-			callWithOk("auth/register", "POST", { email, password, role })
-				.then(ok => {
-					if (!ok) return;
+			const res = await api.post("auth/register", { email, password, role })
 
-					const usernameElement = document.getElementById("username") as HTMLInputElement
-					const passwordElement = document.getElementById("password") as HTMLInputElement
-					usernameElement.value = "";
-					passwordElement.value = "";
+			if (res.status !== 200)
+				return errorMessage = (res.data as { message: string }).message;
 
-					state = "SIGN_IN";
-				})
+			const usernameElement = document.getElementById("username") as HTMLInputElement
+			const passwordElement = document.getElementById("password") as HTMLInputElement
+			usernameElement.value = "";
+			passwordElement.value = "";
+
+			state = "SIGN_IN";
 		}
 	}
 
@@ -54,10 +55,6 @@
 		state = state === "SIGN_IN" ? "SIGN_UP" : "SIGN_IN";
 		errorMessage = "";
 	}
-
-	onMount(() => {
-		callWithResponse<number[]>("/routing/calculate?start=A&end=D").then(console.log);
-	})
 </script>
 
 <section class="flex flex-col gap-2 w-[20em] mx-auto my-10">

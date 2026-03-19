@@ -1,34 +1,39 @@
 <script lang="ts">
-	import UnterMapView from '$lib/map/unter-map-view.svelte';
+	import Circle from '$lib/circle.svelte';
+import UnterMapView from '$lib/map/unter-map-view.svelte';
 	import { type UnterMapNode } from '../../lib/map/unter-map-view.ts';
+	import axios, { type AxiosResponse } from 'axios';
+	import api from '$lib/api.ts';
+
+	let currentRequest: { from: string; to: string } = $state({ from: "", to: "" });
 
 	const finish = async () => {
-		const fromElement = document.getElementById("from") as HTMLInputElement
-		const fromValue = fromElement.value.trim();
-		const toElement = document.getElementById("to") as HTMLInputElement
-		const toValue = toElement.value.trim();
-
-		if (fromValue === "" || toValue === "")
+		if (currentRequest.from === "" || currentRequest.to === "")
 			return alert("Please fill in both the 'from' and 'to' fields before submitting the form.");
 
-		if (fromElement.value === toElement.value)
+		if (currentRequest.from === currentRequest.to)
 			return alert("You can't ride to the same place! Please choose a different destination.");
 
-		const asdf = fetch("http://localhost:8080/api/routing/hello", {});
-		asdf.then(res => res.text()).then(res => alert(res));
+		const res = await api.post('/api/requests', {
+			customerId: "123456789",
+			description: "",
+			status: "",
+			pickUpLocation: { nodeName: currentRequest.from },
+			dropOffLocation: { nodeName: currentRequest.to },
+		}) as AxiosResponse<object>;
+
+		if (res.status !== 200)
+			return alert("Something went wrong. Please try again later.");
 	}
 
 	const populateForm = (node: UnterMapNode) => {
-		const fromElement = document.getElementById("from") as HTMLInputElement
-		const toElement = document.getElementById("to") as HTMLInputElement
-
-		if (fromElement.value.trim() === "")
-			fromElement.value = node.id.toString();
-		else if (toElement.value.trim() === "")
-			toElement.value = node.id.toString();
+		if (currentRequest.from === "")
+			currentRequest.from = node.name;
+		else if (currentRequest.to === "")
+			currentRequest.to = node.name;
 		else {
-			fromElement.value = "";
-			toElement.value = "";
+			currentRequest.from = "";
+			currentRequest.to = "";
 			populateForm(node);
 		}
 	}
@@ -50,12 +55,12 @@
 				<div class="flex flex-row justify-center items-center gap-2">
 					<div>
 						<p class="mb-1 italic">from</p>
-						<input class="rounded-full size-12 text-center" type="text" id="from" />
+						<Circle value={currentRequest.from}/>
 					</div>
 					<p class="text-2xl mt-6 font-bold">→</p>
 					<div>
 						<p class="mb-1 italic">to</p>
-						<input class="rounded-full size-12 text-center" type="text" id="to" />
+						<Circle value={currentRequest.to}/>
 					</div>
 				</div>
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import UnterMapView from '$lib/map/unter-map-view.svelte';
 	import { type UnterMapNode } from '../../lib/map/unter-map-view.ts';
+	import Circle from '$lib/circle.svelte';
 
 	const populateForm = (node: UnterMapNode) => {
 		const fromElement = document.getElementById("from") as HTMLInputElement
@@ -19,8 +20,8 @@
 
 	type Request = {
 		user: string;
-		from: number;
-		to: number;
+		from: string;
+		to: string;
 	}
 
 	let requests: Request[] = $state([
@@ -30,7 +31,7 @@
 		{ user: "user 1", from: 0, to: 2 },
 		{ user: "user 2", from: 1, to: 0 },
 		{ user: "user 3", from: 2, to: 3 },
-	]);
+	].map(it => ({ ...it, from: it.from.toString(), to: it.to.toString() })))
 
 	const finish = () => {}
 </script>
@@ -61,12 +62,12 @@
 						<div class="flex flex-row justify-center items-center gap-2 text-center">
 							<div>
 								<p class="mb-1 italic">from</p>
-								<input class="rounded-full size-12 text-center" disabled type="text" id={`${i}.from`} value={request.from.toString()} />
+								<Circle value={request.from}/>
 							</div>
 							<p class="text-2xl mt-6 font-bold">→</p>
 							<div>
 								<p class="mb-1 italic">to</p>
-								<input class="rounded-full size-12 text-center" disabled type="text" id={`${i}.to`} value={request.to.toString()} />
+								<Circle value={request.to}/>
 							</div>
 						</div>
 

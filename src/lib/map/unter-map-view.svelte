@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { requestMap, requestRoute, type UnterMapNode, type UnterMapRoute } from './unter-map-view.ts';
+	import { requestMap, requestRoute, type UnterMap, type UnterMapNode, type UnterMapRoute } from './unter-map-view.ts';
 	import { onMount } from 'svelte';
 
 	type Props = {
@@ -8,17 +8,17 @@
 
 	const { onNodeClick }: Props = $props();
 
-	let map: UnterMapNode[] = $state([]);
+	let map: UnterMap = $state({ id: "", name: "", nodes: [] });
 	let route: UnterMapRoute = $state([]);
 	onMount(async() => {
-		map = await requestMap();
-		route = await requestRoute(map);
+		map = (await requestMap()) ?? map;
+		// route = await requestRoute(map);
 	})
 
 	const mapSize = 400;
 	const dotSize = 30;
 
-	const findNode = (id: number) => map.find(n => n.id === id);
+	const findNode = (id: number) => map.nodes.find(n => n.id === id);
 	const scale = (val: number) => val * (mapSize - 3 * dotSize) + dotSize;
 </script>
 
@@ -31,7 +31,7 @@
 		<div class="rounded-2xl bg-blue-300" style="width: {mapSize}px; height: {mapSize}px;">
 			<!-- Edges -->
 			<svg class="absolute pointer-events-none" width={mapSize} height={mapSize}>
-				{#each map as node (node)}
+				{#each map.nodes as node (node)}
 					{#each node.edges as edge (edge)}
 						{@const target = findNode(edge.to)}
 						{#if target}
@@ -61,11 +61,11 @@
 
 			<!-- Nodes -->
 			<div class="absolute" style="width: {mapSize}px; height: {mapSize}px;">
-				{#each map as node (node.id)}
+				{#each map.nodes as node (node.id)}
 					<button onclick={() => onNodeClick(node)} aria-label="what?"
-									class="absolute rounded-full bg-blue-100 hover:bg-white border shadow-sm hover:shadow-md transition-all flex items-center justify-center"
+									class="absolute rounded-full bg-blue-100 hover:bg-white text-xs border shadow-sm hover:shadow-md transition-all flex items-center justify-center"
 									style="width: {dotSize}px; height: {dotSize}px; transform: translate({scale(node.draw_x)}px, {scale(node.draw_y)}px)">
-						{node.id}
+						{node.name}
 					</button>
 				{/each}
 			</div>
