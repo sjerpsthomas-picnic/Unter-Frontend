@@ -35,8 +35,8 @@
 		const res = await api.get("api/driver/requests/pending") as AxiosResponse<{
 			id: string;
 			username: string;
-			pickupNode: string; // name of the node
-			dropoffNode: string; // name of the node
+			pickUpNode: string; // name of the node
+			dropOffNode: string; // name of the node
 		}[]>;
 
 		alert(JSON.stringify(res.data))
@@ -46,8 +46,8 @@
 		requests = res.data.map((it) => ({
 			id: it.id,
 			user: it.username,
-			from: it.pickupNode,
-			to: it.dropoffNode
+			from: it.pickUpNode,
+			to: it.dropOffNode
 		}));
 	})
 
@@ -128,7 +128,7 @@
 		<div class="flex flex-col gap-5 w-110">
 			<h1 class="mx-auto font-bold mt-5">REQUESTS</h1>
 
-			{#each requests as request, i (request.id)}
+			{#each requests as request (request.id)}
 				<div class="w-full h-fit bg-[#fff0e7] p-5 rounded-3xl border shadow-lg">
 					<div class="flex flex-row gap-5 mb-2 justify-center items-center">
 

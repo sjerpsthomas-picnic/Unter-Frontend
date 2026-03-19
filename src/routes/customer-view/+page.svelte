@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Circle from '$lib/circle.svelte';
-import UnterMapView from '$lib/map/unter-map-view.svelte';
+	import UnterMapView from '$lib/map/unter-map-view.svelte';
 	import { type UnterMapNode } from '../../lib/map/unter-map-view.ts';
 	import api from '$lib/api.ts';
 	import { jwtDecode } from 'jwt-decode';
@@ -101,11 +101,17 @@ import UnterMapView from '$lib/map/unter-map-view.svelte';
 				</form>
 			</div>
 		{:else if state.state === "pending"}
-			<div class="h-fit px-10 bg-lime-300 p-5 rounded-b-3xl text-center shadow-2xl">
+			<div class="h-fit px-10 bg-orange-300 p-5 rounded-b-3xl text-center shadow-2xl">
 				<h1 class="font-bold">Where to?</h1>
 
 				<p>You've made a request!</p>
 				<p>Sit tight while our drivers accept your request.</p>
+			</div>
+		{:else if state.state === "accepted"}
+			<div class="h-fit px-10 bg-green-300 p-5 rounded-b-3xl text-center shadow-2xl">
+				<h1 class="font-bold">Where to?</h1>
+
+				<p>Your request is accepted!</p>
 			</div>
 		{/if}
 	</div>
