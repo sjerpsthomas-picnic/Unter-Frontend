@@ -5,25 +5,34 @@ import UnterMapView from '$lib/map/unter-map-view.svelte';
 	import api from '$lib/api.ts';
 	import { jwtDecode } from 'jwt-decode';
 	import { onMount } from 'svelte';
+	import type { AxiosResponse } from 'axios';
 
-	let currentRequest: { from: string; to: string } = $state({ from: "", to: "" });
+	let state:
+		{ state: "requesting", from: string, to: string } |
+		{ state: "pending" } |
+		{ state: "accepted" } = $state({ state: "requesting", from: "", to: "" });
 
-	let requestMade = $state(false);
+	onMount(async () => {
+		const { sub } = jwtDecode<{ sub: string }>(localStorage.getItem('token')!);
+		const res = await api.get('/api/customer/requests?username=' + sub) as AxiosResponse<any[]>;
 
-	onMount(() => {
-		// TODO: change to call
-		const request = null;
-
-		if (request) {
-			requestMade = true;
+		if (res.status !== 200) {
+			alert("Something went wrong. Please try again later.");
+			return;
 		}
+
+		if (res.data.length > 0)
+			state = { state: "pending" };
 	})
 
 	const finish = async () => {
+		if (state.state !== "requesting")
+			return;
+
 		// Error handling
-		if (currentRequest.from === "" || currentRequest.to === "")
+		if (state.from === "" || state.to === "")
 			return alert("Please fill in both the 'from' and 'to' fields before submitting the form.");
-		if (currentRequest.from === currentRequest.to)
+		if (state.from === state.to)
 			return alert("You can't ride to the same place! Please choose a different destination.");
 
 		// Get ID from token
@@ -32,8 +41,8 @@ import UnterMapView from '$lib/map/unter-map-view.svelte';
 		// Make request
 		const res = await api.post('/api/customer/requests', {
 			username: sub,
-			pickUpNode: currentRequest.from,
-			dropOffNode: currentRequest.to,
+			pickUpNode: state.from,
+			dropOffNode: state.to,
 			graphName: localStorage.getItem('graphName')!,
 		});
 
@@ -41,17 +50,20 @@ import UnterMapView from '$lib/map/unter-map-view.svelte';
 		if (res.status !== 201)
 			return alert("Something went wrong. Please try again later.");
 
-		requestMade = true;
+		state = { state: "pending" };
 	}
 
 	const populateForm = (node: UnterMapNode) => {
-		if (currentRequest.from === "")
-			currentRequest.from = node.name;
-		else if (currentRequest.to === "")
-			currentRequest.to = node.name;
+		if (state.state !== "requesting")
+			return;
+
+		if (state.from === "")
+			state.from = node.name;
+		else if (state.to === "")
+			state.to = node.name;
 		else {
-			currentRequest.from = "";
-			currentRequest.to = "";
+			state.from = "";
+			state.to = "";
 			populateForm(node);
 		}
 	}
@@ -66,7 +78,7 @@ import UnterMapView from '$lib/map/unter-map-view.svelte';
 	<div class="flex w-110 flex-col mx-auto">
 		<UnterMapView onNodeClick={populateForm}/>
 
-		{#if !requestMade}
+		{#if state.state === "requesting"}
 			<div class="h-fit px-10 bg-amber-300 p-5 rounded-b-3xl shadow-2xl">
 				<h1 class="text-center mx-auto font-bold">Where to?</h1>
 
@@ -74,12 +86,12 @@ import UnterMapView from '$lib/map/unter-map-view.svelte';
 					<div class="flex flex-row justify-center items-center gap-2">
 						<div>
 							<p class="mb-1 italic">from</p>
-							<Circle value={currentRequest.from}/>
+							<Circle value={state.from}/>
 						</div>
 						<p class="text-2xl mt-6 font-bold">→</p>
 						<div>
 							<p class="mb-1 italic">to</p>
-							<Circle value={currentRequest.to}/>
+							<Circle value={state.to}/>
 						</div>
 					</div>
 
@@ -88,7 +100,7 @@ import UnterMapView from '$lib/map/unter-map-view.svelte';
 					</button>
 				</form>
 			</div>
-		{:else}
+		{:else if state.state === "pending"}
 			<div class="h-fit px-10 bg-lime-300 p-5 rounded-b-3xl text-center shadow-2xl">
 				<h1 class="font-bold">Where to?</h1>
 
