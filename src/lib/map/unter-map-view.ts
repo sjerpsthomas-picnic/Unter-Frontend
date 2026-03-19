@@ -46,6 +46,8 @@ export async function requestMap(): Promise<UnterMap | undefined>{
 
 	const { id, name, nodeCount, edges, gasStations, nodeMap } = res.data[0];
 
+	localStorage.setItem('graphName', name);
+
 	const nodes: UnterMapNode[] = [];
 	for (let i = 0; i < nodeCount; i++) {
 		nodes.push({

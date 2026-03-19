@@ -28,10 +28,12 @@
 
 			const { token } = res.data;
 
-			const role = jwtDecode<{ role: "ROLE_CUSTOMER" | "ROLE_DRIVER" }>(token).role;
+			const role = jwtDecode<{ role: "CUSTOMER" | "DRIVER" }>(token).role;
 			localStorage.setItem("token", token);
 
-			if (role === "ROLE_CUSTOMER")
+			alert(role)
+
+			if (role === "CUSTOMER")
 				window.location.href = "/customer-view";
 			else
 				window.location.href = "/driver-view";
