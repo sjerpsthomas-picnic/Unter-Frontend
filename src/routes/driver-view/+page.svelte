@@ -39,8 +39,6 @@
 			dropOffNode: string; // name of the node
 		}[]>;
 
-		alert(JSON.stringify(res.data))
-
 		if (res.status !== 200) return;
 
 		requests = res.data.map((it) => ({

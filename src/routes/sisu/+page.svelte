@@ -26,12 +26,13 @@
 		if (state == "SIGN_IN") {
 			const res = await api.post("auth/login", { email, password }) as AxiosResponse<{ token: string }>;
 
+			if (res.status !== 200)
+				return errorMessage = (res.data as { message: string }).message + "!";
+
 			const { token } = res.data;
 
 			const role = jwtDecode<{ role: "CUSTOMER" | "DRIVER" }>(token).role;
 			localStorage.setItem("token", token);
-
-			alert(role)
 
 			if (role === "CUSTOMER")
 				window.location.href = "/customer-view";
@@ -42,7 +43,8 @@
 			const res = await api.post("auth/register", { email, password, role })
 
 			if (res.status !== 200)
-				return errorMessage = (res.data as { message: string }).message;
+				return errorMessage = (res.data as { message: string }).message + "!";
+
 
 			const usernameElement = document.getElementById("username") as HTMLInputElement
 			const passwordElement = document.getElementById("password") as HTMLInputElement
