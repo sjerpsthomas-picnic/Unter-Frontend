@@ -7,21 +7,6 @@
 	import type { AxiosResponse } from 'axios';
 	import { jwtDecode } from 'jwt-decode';
 
-	const populateForm = (node: UnterMapNode) => {
-		const fromElement = document.getElementById("from") as HTMLInputElement
-		const toElement = document.getElementById("to") as HTMLInputElement
-
-		if (fromElement.value.trim() === "")
-			fromElement.value = node.id.toString();
-		else if (toElement.value.trim() === "")
-			toElement.value = node.id.toString();
-		else {
-			fromElement.value = "";
-			toElement.value = "";
-			populateForm(node);
-		}
-	}
-
 	type Request = {
 		id: string;
 		user: string;
@@ -31,15 +16,33 @@
 
 	let requests: Request[] = $state([])
 
+	const getId = async () => {
+		const token = localStorage.getItem("token");
+		if (!token) return;
+
+		const { id } = jwtDecode<{ id: string }>(token);
+
+		const res = await api.get("api/driver/user/" + id) as AxiosResponse<{
+			id: string;
+		}>;
+
+		if (res.status !== 200) return;
+
+		return res.data.id;
+	}
+
 	onMount(async () => {
-		const res = await api.get("api/driver/requests/pending") as AxiosResponse<{
+		const res = await api.get("api/driver/requests/pending/" + await getId()) as AxiosResponse<{
 			id: string;
 			username: string;
 			pickUpNode: string; // name of the node
 			dropOffNode: string; // name of the node
 		}[]>;
 
-		if (res.status !== 200) return;
+		if (res.status !== 200) {
+			alert("Failed to fetch requests")
+			return;
+		}
 
 		requests = res.data.map((it) => ({
 			id: it.id,
@@ -50,8 +53,7 @@
 	})
 
 	let accept = async (requestId: string) => {
-		const { id } = jwtDecode<{ id: string }>(localStorage.getItem("token")!)
-		const res = await api.post("api/driver/requests/" + requestId + "/accept?driverId=" + id)
+		const res = await api.post("api/driver/requests/" + requestId + "/accept?driverId=" + await getId())
 
 		if (res.status !== 200) {
 			alert("Failed to accept request")
@@ -65,8 +67,7 @@
 	}
 
 	let deny = async (requestId: string) => {
-		const { id } = jwtDecode<{ id: string }>(localStorage.getItem("token")!)
-		const res = await api.post("api/driver/requests/" + requestId + "/deny?driverId=" + id)
+		const res = await api.post("api/driver/requests/" + requestId + "/deny?driverId=" + await getId())
 
 		if (res.status !== 200) {
 			alert("Failed to deny request")
@@ -77,8 +78,7 @@
 	}
 
 	let complete = async (requestId: string) => {
-		const { id } = jwtDecode<{ id: string }>(localStorage.getItem("token")!)
-		const res = await api.post("api/driver/requests/" + requestId + "/complete?driverId=" + id)
+		const res = await api.post("api/driver/requests/" + requestId + "/complete?driverId=" + await getId())
 
 		if (res.status !== 200) {
 			alert("Failed to complete request")
@@ -87,15 +87,15 @@
 
 		alert("Completed " + JSON.stringify(res.data))
 
-		await getFuel();
+		await setStatus();
 	}
 
 	let fuelPercent = $state(0.0)
+	let currentNode: string | undefined = $state(undefined)
 
-	let getFuel = async () => {
-		// -s http://localhost:8080/api/driver/69bc02c6a72fc0b3dad6e642/status \
-		const { id } = jwtDecode<{ id: string }>(localStorage.getItem("token")!)
-		const res = await api.get("api/driver/" + id + "/status") as AxiosResponse<{
+	let setStatus = async () => {
+		const res = await api.get("api/driver/" + await getId() + "/status") as AxiosResponse<{
+			currentNode: string;
 			currentFuel: number;
 			maxTank: number;
 		}>
@@ -106,6 +106,20 @@
 		}
 
 		fuelPercent = res.data.currentFuel / res.data.maxTank * 100;
+		currentNode = res.data.currentNode;
+	}
+
+	onMount(setStatus)
+
+	let setCurrentNode = async (node: UnterMapNode) => {
+		const res = await api.post("api/driver/" + await getId() + "/updateLocation?newNode=" + node.name);
+
+		if (res.status !== 200) {
+			alert("Failed to set current node")
+			return;
+		}
+
+		currentNode = node.name;
 	}
 </script>
 
@@ -117,7 +131,7 @@
 <section>
 	<div class="flex flex-row space-x-10 justify-center">
 		<div>
-			<UnterMapView onNodeClick={populateForm}/>
+			<UnterMapView highlightedNodeName={currentNode} onNodeClick={setCurrentNode}/>
 			<div class="w-full bg-fuchsia-300 p-5 rounded-b-2xl">
 				Fuel left: {fuelPercent.toFixed(2)}%
 			</div>

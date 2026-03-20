@@ -3,10 +3,11 @@
 	import { onMount } from 'svelte';
 
 	type Props = {
+		highlightedNodeName: string | undefined,
 		onNodeClick: (node: UnterMapNode) => void,
 	};
 
-	const { onNodeClick }: Props = $props();
+	const { highlightedNodeName, onNodeClick }: Props = $props();
 
 	let map: UnterMap = $state({ id: "", name: "", nodes: [] });
 	let route: UnterMapRoute = $state([]);
@@ -63,7 +64,7 @@
 			<div class="absolute" style="width: {mapSize}px; height: {mapSize}px;">
 				{#each map.nodes as node (node.id)}
 					<button onclick={() => onNodeClick(node)} aria-label="what?"
-									class="absolute rounded-full bg-blue-100 hover:bg-white text-xs border shadow-sm hover:shadow-md transition-all flex items-center justify-center"
+									class={`absolute rounded-full ${node.name === highlightedNodeName ? "bg-blue-200 border-white border-2" : "bg-blue-100 hover:bg-white"} text-xs border shadow-sm hover:shadow-md transition-all flex items-center justify-center`}
 									style="width: {dotSize}px; height: {dotSize}px; transform: translate({scale(node.draw_x)}px, {scale(node.draw_y)}px)">
 						{node.name}
 					</button>

@@ -1,5 +1,5 @@
 import { type AxiosResponse } from 'axios';
-import api from '/src/lib/api.ts';
+import api from "/src/lib/api.ts";
 
 export type UnterMap = {
 	id: string;
