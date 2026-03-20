@@ -21,7 +21,7 @@
 			return;
 		}
 
-		const hasPendingRequest = res.data.some(it => it.status !== "COMPLETED" && it.status !== "UNAVAILABLE");
+		const hasPendingRequest = res.data.some(it => it.status !== "COMPLETED" && it.status !== "NO_DRIVERS_AVAILABLE");
 		if (hasPendingRequest)
 			state = { state: "pending" };
 	})
