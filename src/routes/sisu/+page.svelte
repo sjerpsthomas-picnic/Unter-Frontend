@@ -42,9 +42,8 @@
 		else {
 			const res = await api.post("auth/register", { email, password, role })
 
-			if (res.status !== 200)
+			if (res.status !== 201)
 				return errorMessage = (res.data as { message: string }).message + "!";
-
 
 			const usernameElement = document.getElementById("username") as HTMLInputElement
 			const passwordElement = document.getElementById("password") as HTMLInputElement
