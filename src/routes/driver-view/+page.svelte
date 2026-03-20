@@ -132,8 +132,11 @@
 	<div class="flex flex-row space-x-10 justify-center">
 		<div>
 			<UnterMapView highlightedNodeName={currentNode} onNodeClick={setCurrentNode}/>
-			<div class="w-full bg-fuchsia-300 p-5 rounded-b-2xl">
-				Fuel left: {fuelPercent.toFixed(2)}%
+			<div class="w-full bg-fuchsia-300 flex flex-row space-x-4 p-5 rounded-b-2xl">
+				<p>Fuel left:</p>
+				<div class="h-6 w-80 border bg-gray-50 rounded-full shadow-xl overflow-clip">
+					<div class="h-full bg-green-500" style="width: {fuelPercent}%"></div>
+				</div>
 			</div>
 		</div>
 
