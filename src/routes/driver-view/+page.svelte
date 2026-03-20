@@ -31,7 +31,7 @@
 		return res.data.id;
 	}
 
-	onMount(async () => {
+	const setRequests = async () => {
 		const res = await api.get("api/driver/requests/pending/" + await getId()) as AxiosResponse<{
 			id: string;
 			username: string;
@@ -50,7 +50,9 @@
 			from: it.pickUpNode,
 			to: it.dropOffNode
 		}));
-	})
+	}
+
+	onMount(setRequests)
 
 	let accept = async (requestId: string) => {
 		const res = await api.post("api/driver/requests/" + requestId + "/accept?driverId=" + await getId())
@@ -60,21 +62,18 @@
 			return;
 		}
 
-		alert("Accepted " + JSON.stringify(res.data))
-		alert("Waiting two seconds...")
-
 		setTimeout(async () => complete(requestId), 2000)
 	}
 
 	let deny = async (requestId: string) => {
-		const res = await api.post("api/driver/requests/" + requestId + "/deny?driverId=" + await getId())
+		const res = await api.post("api/driver/requests/" + requestId + "/reject?driverId=" + await getId())
 
 		if (res.status !== 200) {
-			alert("Failed to deny request")
+			alert("Failed to accept request")
 			return;
 		}
 
-		alert("Accepted " + JSON.stringify(res.data))
+		await setRequests();
 	}
 
 	let complete = async (requestId: string) => {
@@ -85,9 +84,8 @@
 			return;
 		}
 
-		alert("Completed " + JSON.stringify(res.data))
-
 		await setStatus();
+		await setRequests();
 	}
 
 	let fuelPercent = $state(0.0)

@@ -14,14 +14,15 @@
 
 	onMount(async () => {
 		const { sub } = jwtDecode<{ sub: string }>(localStorage.getItem('token')!);
-		const res = await api.get('/api/customer/requests?username=' + sub) as AxiosResponse<any[]>;
+		const res = await api.get('/api/customer/requests?username=' + sub) as AxiosResponse<{ status: string }[]>;
 
 		if (res.status !== 200) {
 			alert("Something went wrong. Please try again later.");
 			return;
 		}
 
-		if (res.data.length > 0)
+		const hasPendingRequest = res.data.some(it => it.status !== "COMPLETED" && it.status !== "UNAVAILABLE");
+		if (hasPendingRequest)
 			state = { state: "pending" };
 	})
 
