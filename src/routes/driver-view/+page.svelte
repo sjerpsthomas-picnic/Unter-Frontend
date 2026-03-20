@@ -88,7 +88,8 @@
 		await setRequests();
 	}
 
-	let fuelPercent = $state(0.0)
+	let fuel: number = $state(0)
+	let maxFuel: number = $state(0)
 	let currentNode: string | undefined = $state(undefined)
 
 	let setStatus = async () => {
@@ -103,7 +104,8 @@
 			return;
 		}
 
-		fuelPercent = res.data.currentFuel / res.data.maxTank * 100;
+		fuel = res.data.currentFuel;
+		maxFuel = res.data.maxTank;
 		currentNode = res.data.currentNode;
 	}
 
@@ -130,16 +132,22 @@
 	<div class="flex flex-row space-x-10 justify-center">
 		<div>
 			<UnterMapView highlightedNodeName={currentNode} onNodeClick={setCurrentNode}/>
-			<div class="w-full bg-fuchsia-300 flex flex-row space-x-4 p-5 rounded-b-2xl">
+			<div class="w-full bg-fuchsia-300 flex flex-row items-center space-x-4 p-5 rounded-b-2xl">
 				<p>Fuel left:</p>
 				<div class="h-6 w-80 border bg-gray-50 rounded-full shadow-xl overflow-clip">
-					<div class="h-full bg-green-500" style="width: {fuelPercent}%"></div>
+					<div class="h-full bg-green-500 text-sm text-center align-center text-white" style="width: {fuel / maxFuel * 100}%">
+						{fuel} / {maxFuel}
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<div class="flex flex-col gap-5 w-110">
 			<h1 class="mx-auto font-bold mt-5">REQUESTS</h1>
+
+			{#if requests.length === 0}
+				<p class="text-center">You don't have any requests.</p>
+			{/if}
 
 			{#each requests as request (request.id)}
 				<div class="w-full h-fit bg-[#fff0e7] p-5 rounded-3xl border shadow-lg">
