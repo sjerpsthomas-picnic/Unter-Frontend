@@ -101,7 +101,7 @@
 				</form>
 			</div>
 		{:else if state.state === "pending"}
-			<div class="h-fit px-10 bg-orange-300 p-5 rounded-b-3xl text-center shadow-2xl">
+			<div class="h-fit px-10 bg-amber-300 p-5 rounded-b-3xl text-center shadow-2xl">
 				<h1 class="font-bold">Where to?</h1>
 
 				<p>You've made a request!</p>

@@ -21,6 +21,8 @@ export type UnterMapNode = {
 
 export type UnterMapEdge = {
 	to: number;
+
+	weight: number;
 };
 
 export type UnterMapRoute = {
@@ -33,7 +35,7 @@ export async function requestMap(): Promise<UnterMap | undefined>{
 		id: string;
 		name: string;
 		nodeCount: number;
-		edges: { source: number; to: number }[];
+		edges: { source: number; to: number; weight: number }[];
 		gasStations: number[];
 		nodeMap: Record<string, number>;
 	}[]>
@@ -56,21 +58,11 @@ export async function requestMap(): Promise<UnterMap | undefined>{
 			isGasStation: gasStations.includes(i),
 			draw_x: random(i), // TODO: make this more realistic
 			draw_y: random(i + 10),
-			edges: edges.filter((it) => it.source === i).map((it) => ({ to: it.to }))
+			edges: edges.filter((it) => it.source === i).map((it) => ({ to: it.to, weight: it.weight }))
 		});
 	}
 
-	const bounds = {
-		minX: Math.min(...nodes.map((it) => it.draw_x)),
-		maxX: Math.max(...nodes.map((it) => it.draw_x)),
-		minY: Math.min(...nodes.map((it) => it.draw_y)),
-		maxY: Math.max(...nodes.map((it) => it.draw_y))
-	};
-
-	for (const node of nodes) {
-		node.draw_x = (node.draw_x - bounds.minX) / (bounds.maxX - bounds.minX);
-		node.draw_y = (node.draw_y - bounds.minY) / (bounds.maxY - bounds.minY);
-	}
+	normalize(nodes);
 
 	const foundEdges: { from: number; to: number }[] = [];
 	for (const node of nodes) {
@@ -86,7 +78,6 @@ export async function requestMap(): Promise<UnterMap | undefined>{
 		});
 	}
 
-
 	return applySpringSimulation({
 		id,
 		name,
@@ -98,10 +89,24 @@ function clamp(a: number, min: number, max: number): number {
 	return Math.min(Math.max(a, min), max);
 }
 
+function normalize(nodes: UnterMapNode[]) {
+	const bounds = {
+		minX: Math.min(...nodes.map((it) => it.draw_x)),
+		maxX: Math.max(...nodes.map((it) => it.draw_x)),
+		minY: Math.min(...nodes.map((it) => it.draw_y)),
+		maxY: Math.max(...nodes.map((it) => it.draw_y))
+	};
+
+	for (const node of nodes) {
+		node.draw_x = (node.draw_x - bounds.minX) / (bounds.maxX - bounds.minX);
+		node.draw_y = (node.draw_y - bounds.minY) / (bounds.maxY - bounds.minY);
+	}
+}
+
 function applySpringSimulation(map: UnterMap, iterations: number): UnterMap {
 	const nodes = [...map.nodes];// Ideal distance between nodes
-	const repulsion = 0.05; // Strength of node pushing away from others
-	const attraction = 0.05; // Strength of the "spring"
+	const repulsion = 0.01; // Strength of node pushing away from others
+	const attraction = 0.01; // Strength of the "spring"
 
 	for (let i = 0; i < iterations; i++) {
 		// 1. Calculate Repulsion (All nodes vs All nodes)
@@ -117,11 +122,10 @@ function applySpringSimulation(map: UnterMap, iterations: number): UnterMap {
 				const force = repulsion / (distance * distance);
 				nodes[a].draw_x += (dx / distance) * force;
 				nodes[a].draw_y += (dy / distance) * force;
-
-				nodes[a].draw_x = clamp(nodes[a].draw_x, 0, 1);
-				nodes[a].draw_y = clamp(nodes[a].draw_y, 0, 1);
 			}
 		}
+
+		normalize(nodes);
 
 		// 2. Calculate Attraction (Only connected nodes)
 		nodes.forEach((node) => {
@@ -131,21 +135,20 @@ function applySpringSimulation(map: UnterMap, iterations: number): UnterMap {
 
 				const dx = target.draw_x - node.draw_x;
 				const dy = target.draw_y - node.draw_y;
-				const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+				const distance = edge.weight;
+
+				console.log(distance);
 
 				// Hooke's Law style attraction
 				const force = distance * attraction;
-				node.draw_x += (dx / distance) * force;
-				node.draw_y += (dy / distance) * force;
-				target.draw_x -= (dx / distance) * force;
-				target.draw_y -= (dy / distance) * force;
-
-				node.draw_x = clamp(node.draw_x, 0, 1);
-				node.draw_y = clamp(node.draw_y, 0, 1);
-				target.draw_x = clamp(target.draw_x, 0, 1);
-				target.draw_y = clamp(target.draw_y, 0, 1);
+				node.draw_x += (dx) * force;
+				node.draw_y += (dy) * force;
+				target.draw_x -= (dx) * force;
+				target.draw_y -= (dy) * force;
 			});
 		});
+
+		normalize(nodes);
 	}
 
 	return { ...map, nodes };
